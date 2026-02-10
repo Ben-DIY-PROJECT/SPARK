@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Example Studio · News</title>
+  <link rel="icon" href="media_doc/placeholders/Placeholder.jpg" type="image/jpeg" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="container">
+      <div class="inner">
+        <div class="logo" role="heading" aria-level="1">
+          <span class="logo-badge" aria-hidden="true"><img src="media_doc/placeholders/Placeholder.jpg"
+              alt="" /></span><span>Example Studio</span>
+        </div>
+        <nav class="nav">
+          <a href="index.html">Home</a>
+          <a href="about.html">About</a>
+          <a href="works.html">Projects</a>
+          <a href="news.html">News</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="page page-news">
+    <div class="container">
+      <div class="page-header">
+        <h1 class="page-title">News</h1>
+        <!-- Optional: add a short description here. -->
+      </div>
+
+      <section class="content">
+        <div class="news-scroll">
+          <div class="news-layout">
+            <div class="news-side">
+              <ul class="news-list" data-max-items="3">
+
+                <!-- Template: copy a news item; newest goes first. -->
+
+                <li class="news-item active" tabindex="0" data-title="Example Announcement" data-date="2026-01-02"
+                  data-address="Online" data-image="media_doc/placeholders/Placeholder.jpg"
+                  data-content="Details:\nThis is an example announcement body.">
+                  2026.01.02 · Announcement
+                </li>
+
+
+                <li class="news-item active" tabindex="0" data-title="Example Site Launch" data-date="2026-01-01"
+                  data-address="Online" data-image="media_doc/placeholders/Placeholder.jpg"
+                  data-content="Details:\nThis is an example launch note.">
+                  2026.01.01 · Announcement
+                </li>
+              </ul>
+
+
+              <button class="news-list-toggle" type="button" hidden aria-expanded="false">Show more</button>
+            </div>
+
+
+            <!-- Default placeholders; populated by JS. -->
+            <div class="news-detail">
+              <img class="news-image" src="" alt="News image placeholder">
+              <h3 class="news-title">Placeholder</h3>
+              <div class="news-meta">
+                <div class="news-date">Placeholder</div>
+                <div class="news-address">Placeholder</div>
+              </div>
+              <div class="news-body"></div>
+            </div>
+
+
+
+
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="footer">© 2026 Example Studio · All rights reserved.</div>
+  <script src="assets/js/main.js"></script>
+</body>
+
+</html>

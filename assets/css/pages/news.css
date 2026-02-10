@@ -1,0 +1,152 @@
+.page.page-news .page-header {
+  padding-top: var(--news-header-padding-top, 52px);
+  padding-bottom: var(--news-header-padding-bottom, 18px);
+}
+
+.page.page-news .content {
+  padding-top: var(--news-content-padding-top, 18px);
+}
+
+.news-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.news-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  min-width: 760px;
+}
+
+.news-side {
+  width: 320px;
+  max-width: 35%;
+  flex: 0 0 320px;
+}
+
+.news-list {
+  width: 100%;
+  max-width: 100%;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  max-height: var(--news-list-max-height, min(520px, calc(100vh - 320px)));
+  overflow-y: auto;
+  padding-right: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.news-list-toggle {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--deep);
+  cursor: pointer;
+}
+
+.news-list-toggle:hover {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.news-item {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.85),
+      rgba(255, 255, 255, 0.60));
+  margin-bottom: 12px;
+  color: var(--deep);
+  cursor: pointer;
+}
+
+.news-item.active {
+  border-color: var(--accent);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.news-item:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.65);
+  outline-offset: 3px;
+}
+
+.news-detail {
+  flex: 1;
+  min-width: 420px;
+}
+
+.news-image {
+  width: 100%;
+  height: clamp(220px, 42vh, 420px);
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.news-title {
+  margin: 14px 0 6px;
+  font-size: 20px;
+  color: var(--deep);
+}
+
+.news-meta {
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.news-body {
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+@media (max-width: 820px) {
+
+  .news-scroll {
+    overflow-x: visible;
+  }
+
+  .news-layout {
+    min-width: 0;
+    flex-direction: column;
+    gap: 14px;
+    align-items: stretch;
+  }
+
+  .news-side {
+    width: 100%;
+    max-width: 100%;
+    flex: 0 0 auto;
+  }
+
+  .news-detail {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .news-list {
+    max-height: min(48vh, 380px);
+  }
+
+  .news-image {
+    display: block;
+    width: 100%;
+    height: clamp(220px, 42vh, 420px);
+    object-fit: cover;
+  }
+}
+
+@media (max-width: 420px) {
+  .news-item {
+    padding: 10px 12px;
+  }
+
+  .news-title {
+    font-size: 18px;
+  }
+}

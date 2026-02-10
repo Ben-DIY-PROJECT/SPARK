@@ -1,0 +1,12 @@
+.page.page-works .page-header {
+  padding-top: var(--works-header-padding-top, 52px);
+  padding-bottom: var(--works-header-padding-bottom, 18px);
+}
+
+.page.page-works .content {
+  padding-top: var(--works-content-padding-top, 18px);
+}
+
+.page.page-works .page-desc {
+  max-width: 48ch;
+}
