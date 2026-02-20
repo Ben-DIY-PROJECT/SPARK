@@ -68,12 +68,20 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
     const typingEndDelay = (charRevealDelays[charRevealDelays.length - 1] || 0) + charRevealDuration + 60;
+    const introEndDelay = 1800;
     introTimerIds.push(window.setTimeout(() => {
       homeHeroEl.classList.remove("is-typing");
     }, typingEndDelay));
+    introTimerIds.push(window.setTimeout(() => {
+      homeHeroEl.classList.remove("is-entering");
+    }, introEndDelay));
   };
 
-  playHomeHeroIntro();
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      playHomeHeroIntro();
+    });
+  });
 
   window.addEventListener("pageshow", (event) => {
     if (event.persisted) {
