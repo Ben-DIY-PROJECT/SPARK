@@ -1,6 +1,6 @@
 # Spark Website (Germ 307)
 
-This is an introduction website for the Germ 307 course, showcasing course content, project works, news, and contact information.
+This is an introduction website for the Germ 307 course, showcasing course content, news, and contact information.
 
 ## Features
 
@@ -13,11 +13,9 @@ This is an introduction website for the Germ 307 course, showcasing course conte
 
 - `index.html`: Homepage
 - `about.html`: About page with links to detail topics
-- `works.html`: Portfolio/projects page
 - `news.html`: News/events page
 - `contact.html`: Contact information
 - `about/`: Detail pages for about topics (topic-a.html, etc.)
-- `works/`: Individual project pages (works-001.html, etc.)
 - `assets/css/`: Stylesheets (base, components, layout, pages)
 - `assets/js/main.js`: JavaScript for interactivity
 - `media_doc/`: Placeholder media files

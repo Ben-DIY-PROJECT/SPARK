@@ -173,52 +173,6 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  const workCoverImg = document.querySelector(".work-media .cover img");
-  const workThumbsWrap = document.querySelector(".work-media .work-thumbs");
-  const workThumbImgs = document.querySelectorAll(".work-media .work-thumbs img");
-
-  if (workThumbsWrap && workThumbImgs.length <= 1) {
-    workThumbsWrap.style.display = "none";
-  }
-
-  if (workCoverImg && workThumbImgs.length) {
-    const setActiveThumb = (thumbImg) => {
-      workThumbImgs.forEach(img => {
-        img.classList.remove("is-active");
-        img.setAttribute("aria-pressed", "false");
-      });
-
-      thumbImg.classList.add("is-active");
-      thumbImg.setAttribute("aria-pressed", "true");
-
-      const largeSrc = thumbImg.dataset.large || thumbImg.getAttribute("src");
-      if (largeSrc) workCoverImg.setAttribute("src", largeSrc);
-
-      const alt = thumbImg.getAttribute("alt");
-      if (alt) workCoverImg.setAttribute("alt", alt);
-    };
-
-    workThumbImgs.forEach((img, idx) => {
-      img.setAttribute("role", "button");
-      img.setAttribute("tabindex", "0");
-      img.setAttribute("aria-pressed", "false");
-      if (!img.getAttribute("aria-label")) {
-        const alt = img.getAttribute("alt") || `Gallery image ${idx + 1}`;
-        img.setAttribute("aria-label", `${alt} (click to view larger)`);
-      }
-
-      img.addEventListener("click", () => setActiveThumb(img));
-      img.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          setActiveThumb(img);
-        }
-      });
-    });
-
-    setActiveThumb(workThumbImgs[0]);
-  }
-
   const aboutSliders = document.querySelectorAll("[data-about-slider]");
 
   const initAboutSlider = (rootEl) => {
