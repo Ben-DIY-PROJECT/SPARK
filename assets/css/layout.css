@@ -98,14 +98,6 @@
   color: var(--deep);
 }
 
-.hero-sub {
-  margin: 0 auto;
-  max-width: 62ch;
-  color: var(--muted);
-  font-size: 16px;
-  line-height: 1.9;
-}
-
 .hero-hint {
   margin-top: 22px;
   color: rgba(0, 0, 0, 0.55);

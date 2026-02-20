@@ -22,6 +22,70 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  const homeHeroEl = document.querySelector(".home-hero");
+  const homeTopWordmarkEl = homeHeroEl
+    ? homeHeroEl.querySelector(".hero-wordmark-line.top")
+    : null;
+  const homeCharEls = homeHeroEl
+    ? Array.from(homeHeroEl.querySelectorAll(".hero-char"))
+    : [];
+  const charRevealDelays = [60, 180, 300, 420, 540];
+  const charRevealDuration = 320;
+  let introTimerIds = [];
+  let activeTypingCharEl = null;
+
+  const clearHomeIntroTimers = () => {
+    introTimerIds.forEach((timerId) => window.clearTimeout(timerId));
+    introTimerIds = [];
+  };
+
+  const updateTypingCursor = (charEl) => {
+    if (!homeTopWordmarkEl || !charEl) return;
+    const lineRect = homeTopWordmarkEl.getBoundingClientRect();
+    const charRect = charEl.getBoundingClientRect();
+    const cursorX = charRect.right - lineRect.left + 3;
+    const cursorTop = charRect.top - lineRect.top + Math.max(2, charRect.height * 0.09);
+    const cursorHeight = Math.max(18, charRect.height * 0.82);
+
+    homeTopWordmarkEl.style.setProperty("--typing-cursor-x", `${cursorX}px`);
+    homeTopWordmarkEl.style.setProperty("--typing-cursor-top", `${cursorTop}px`);
+    homeTopWordmarkEl.style.setProperty("--typing-cursor-height", `${cursorHeight}px`);
+    activeTypingCharEl = charEl;
+  };
+
+  const playHomeHeroIntro = () => {
+    if (!homeHeroEl) return;
+    clearHomeIntroTimers();
+    homeHeroEl.classList.remove("is-entering", "is-typing");
+    void homeHeroEl.offsetWidth;
+    homeHeroEl.classList.add("is-entering", "is-typing");
+
+    homeCharEls.forEach((charEl, index) => {
+      const timerId = window.setTimeout(() => {
+        updateTypingCursor(charEl);
+      }, charRevealDelays[index] || 0);
+      introTimerIds.push(timerId);
+    });
+
+    const typingEndDelay = (charRevealDelays[charRevealDelays.length - 1] || 0) + charRevealDuration + 60;
+    introTimerIds.push(window.setTimeout(() => {
+      homeHeroEl.classList.remove("is-typing");
+    }, typingEndDelay));
+  };
+
+  playHomeHeroIntro();
+
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) {
+      playHomeHeroIntro();
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    if (!homeHeroEl || !homeHeroEl.classList.contains("is-typing") || !activeTypingCharEl) return;
+    updateTypingCursor(activeTypingCharEl);
+  });
+
   const listItems = document.querySelectorAll(".news-item");
   const imageEl = document.querySelector(".news-image");
   const titleEl = document.querySelector(".news-title");
