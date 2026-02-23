@@ -12,6 +12,8 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  const navEl = document.querySelector(".nav");
+
   document.querySelectorAll("[data-bg]").forEach(el => {
     const bg = el.dataset.bg;
     if (bg) {
@@ -75,6 +77,20 @@ window.addEventListener("DOMContentLoaded", () => {
   let handwritingLoopTimerId = null;
   let handwritingWordIndex = 0;
   let typingResizeQueued = false;
+  let navResizeQueued = false;
+
+  const updateNavOverflowState = () => {
+    if (!navEl) return;
+
+    const isSmallLayout = window.matchMedia("(max-width: 980px)").matches;
+    const isOverflowing = navEl.scrollWidth - navEl.clientWidth > 1;
+    const shouldScroll = isSmallLayout && isOverflowing;
+
+    navEl.classList.toggle("is-overflowing", shouldScroll);
+    if (!shouldScroll) {
+      navEl.scrollLeft = 0;
+    }
+  };
 
   const clearHomeIntroTimers = () => {
     introTimerIds.forEach((timerId) => window.clearTimeout(timerId));
@@ -100,10 +116,24 @@ window.addEventListener("DOMContentLoaded", () => {
     return clamp(Math.min(widthScale, heightScale), 0.42, 1);
   };
 
+  const getHandwritingWordScale = () => {
+    const viewportScale = getHandwritingViewportScale();
+    const shortSideScale = Math.min(window.innerWidth, window.innerHeight) / 390;
+    return clamp(Math.min(viewportScale * 1.8, shortSideScale), 0.78, 1.06);
+  };
+
+  const applyHandwritingGlobalScale = () => {
+    if (!document.documentElement) return;
+    document.documentElement.style.setProperty(
+      "--handwriting-word-scale",
+      `${getHandwritingWordScale()}`
+    );
+  };
+
   const isHandwritingViewportSupported = () => {
     const shortSide = Math.min(window.innerWidth, window.innerHeight);
     const longSide = Math.max(window.innerWidth, window.innerHeight);
-    return shortSide >= 320 && longSide >= 568;
+    return shortSide >= 280 && longSide >= 480;
   };
 
   const getHandwritingSpawnDelayRange = () => {
@@ -539,12 +569,20 @@ window.addEventListener("DOMContentLoaded", () => {
 
   window.requestAnimationFrame(() => {
     window.requestAnimationFrame(() => {
+      updateNavOverflowState();
+      applyHandwritingGlobalScale();
       playHomeHeroIntro();
       playPartnerIntro();
     });
   });
 
+  window.addEventListener("load", () => {
+    updateNavOverflowState();
+  });
+
   window.addEventListener("pageshow", (event) => {
+    updateNavOverflowState();
+    applyHandwritingGlobalScale();
     if (event.persisted) {
       playHomeHeroIntro();
       playPartnerIntro();
@@ -552,6 +590,15 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   window.addEventListener("resize", () => {
+    if (!navResizeQueued) {
+      navResizeQueued = true;
+      window.requestAnimationFrame(() => {
+        navResizeQueued = false;
+        updateNavOverflowState();
+      });
+    }
+
+    applyHandwritingGlobalScale();
     if (!homeHeroEl || !handwritingLayerEl) return;
 
     if (!isHandwritingViewportSupported()) {
@@ -574,6 +621,9 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      applyHandwritingGlobalScale();
+    }
     if (!homeHeroEl) return;
     if (document.hidden) {
       clearHandwritingTimers();
@@ -680,75 +730,6 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     }
   }
-
-  const aboutSliders = document.querySelectorAll("[data-about-slider]");
-
-  const initAboutSlider = (rootEl) => {
-    const track = rootEl.querySelector(".about-slider-track");
-    const slides = Array.from(rootEl.querySelectorAll(".about-slide"));
-    const prevBtn = rootEl.querySelector(".about-slider-btn.prev");
-    const nextBtn = rootEl.querySelector(".about-slider-btn.next");
-    const counterEl = rootEl.querySelector(".about-slider-counter");
-
-    if (!track || slides.length === 0) return;
-
-    let index = 0;
-
-    const setIndex = (nextIndex) => {
-      const len = slides.length;
-      index = ((nextIndex % len) + len) % len;
-      track.style.transform = `translateX(${-index * 100}%)`;
-      if (counterEl) counterEl.textContent = `${index + 1} / ${len}`;
-    };
-
-    if (prevBtn) prevBtn.addEventListener("click", () => setIndex(index - 1));
-    if (nextBtn) nextBtn.addEventListener("click", () => setIndex(index + 1));
-
-    rootEl.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        setIndex(index - 1);
-      }
-      if (e.key === "ArrowRight") {
-        e.preventDefault();
-        setIndex(index + 1);
-      }
-    });
-
-    setIndex(0);
-  };
-
-  aboutSliders.forEach(initAboutSlider);
-
-  const aboutSwitchers = document.querySelectorAll("[data-about-switcher]");
-
-  const initAboutSwitcher = (rootEl) => {
-    const tabs = Array.from(rootEl.querySelectorAll(".about-media-tab"));
-    const panels = Array.from(rootEl.querySelectorAll(".about-media-panel"));
-    if (tabs.length === 0 || panels.length === 0) return;
-
-    const setActive = (name) => {
-      tabs.forEach((tabEl) => {
-        const active = tabEl.dataset.target === name;
-        tabEl.classList.toggle("is-active", active);
-        tabEl.setAttribute("aria-selected", String(active));
-      });
-
-      panels.forEach((panelEl) => {
-        const active = panelEl.dataset.panel === name;
-        panelEl.classList.toggle("is-active", active);
-      });
-    };
-
-    const initialTab = tabs.find(t => t.classList.contains("is-active")) || tabs[0];
-    setActive(initialTab.dataset.target);
-
-    tabs.forEach((tabEl) => {
-      tabEl.addEventListener("click", () => setActive(tabEl.dataset.target));
-    });
-  };
-
-  aboutSwitchers.forEach(initAboutSwitcher);
 
   const contentSections = document.querySelectorAll("section.content");
   contentSections.forEach((sectionEl, idx) => {

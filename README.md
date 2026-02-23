@@ -16,7 +16,6 @@ This is a course website for Germ 307, showcasing German course content, updates
 - `partner.html`: Our Partners page
 - `news.html`: News/events page
 - `contact.html`: Contact information
-- `about/`: Detail pages for about topics (`topic-a.html` to `topic-d.html`)
 - `assets/css/`: Stylesheets (`base.css`, `layout.css`, `components.css`, and page CSS files)
 - `assets/css/pages/partner.css`: Partner page styling
 - `assets/js/main.js`: JavaScript for interactivity

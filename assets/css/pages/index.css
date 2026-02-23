@@ -91,7 +91,7 @@
 }
 
 .hero-char {
-  font-size: clamp(100px, 19vw, 290px);
+  font-size: clamp(64px, 19vw, 290px);
   font-weight: 800;
   display: inline-block;
   position: relative;
@@ -193,7 +193,7 @@
 }
 
 .hero-script {
-  font-size: clamp(56px, 8vw, 112px);
+  font-size: clamp(42px, 8vw, 112px);
   color: #95d348;
   line-height: 0.86;
   transform: translateY(6px) rotate(-6deg);
@@ -202,7 +202,7 @@
 }
 
 .hero-german {
-  font-size: clamp(66px, 10vw, 150px);
+  font-size: clamp(48px, 10vw, 150px);
   color: #5b6b7a;
   letter-spacing: 0.02em;
   font-weight: 800;
@@ -221,7 +221,7 @@
   left: 50%;
   top: 50%;
   color: #000000;
-  font-size: clamp(18px, 2.1vw, 34px);
+  font-size: calc(clamp(14px, 2.1vw, 34px) * var(--handwriting-word-scale, 1));
   font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -355,4 +355,75 @@
     gap: clamp(2px, 0.6vw, 8px);
   }
 
+  .hero-wordmark-line.bottom {
+    gap: clamp(6px, 2vw, 14px);
+  }
+
+  .hero-animated-bg {
+    gap: clamp(3px, 1.2vw, 8px);
+    padding-top: 42px;
+  }
+
+  .hero-char {
+    font-size: clamp(48px, 18vw, 90px);
+  }
+
+  .hero-script {
+    font-size: clamp(30px, 11vw, 54px);
+    transform: translateY(3px) rotate(-6deg);
+  }
+
+  .hero-german {
+    font-size: clamp(34px, 12vw, 66px);
+  }
+
+  .home-hero .hero-hint {
+    margin-top: 6px;
+  }
+}
+
+@media (max-width: 380px) {
+  .hero-char {
+    font-size: clamp(40px, 17vw, 70px);
+  }
+
+  .hero-script {
+    font-size: clamp(26px, 10vw, 46px);
+  }
+
+  .hero-german {
+    font-size: clamp(28px, 11vw, 54px);
+  }
+
+
+  @media (max-width: 320px) {
+    .hero-wordmark-line {
+      gap: clamp(1px, 0.4vw, 4px);
+    }
+
+    .hero-wordmark-line.top {
+      letter-spacing: 0;
+    }
+
+    .hero-wordmark-line.bottom {
+      gap: clamp(4px, 1.6vw, 10px);
+    }
+
+    .hero-char {
+      font-size: clamp(32px, 14.5vw, 46px);
+    }
+
+    .hero-script {
+      font-size: clamp(20px, 9vw, 36px);
+    }
+
+    .hero-german {
+      font-size: clamp(22px, 10vw, 40px);
+    }
+
+    .home-hero .hero-hint {
+      margin-top: 4px;
+      font-size: 11px;
+    }
+  }
 }

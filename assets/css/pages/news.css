@@ -16,13 +16,13 @@
   display: flex;
   gap: 24px;
   align-items: flex-start;
-  min-width: 760px;
+  min-width: 0;
 }
 
 .news-side {
-  width: 320px;
+  width: clamp(240px, 30vw, 320px);
   max-width: 35%;
-  flex: 0 0 320px;
+  flex: 0 1 clamp(240px, 30vw, 320px);
 }
 
 .news-list {
@@ -77,7 +77,7 @@
 
 .news-detail {
   flex: 1;
-  min-width: 420px;
+  min-width: 0;
 }
 
 .news-image {
