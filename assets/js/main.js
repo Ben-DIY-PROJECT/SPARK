@@ -63,6 +63,10 @@ window.addEventListener("DOMContentLoaded", () => {
   const handwritingSpawnDelayMax = 2200;
   const handwritingWordDurationMin = 2600;
   const handwritingWordDurationMax = 4600;
+  const handwritingPlacementAttempts = 28;
+  const handwritingCollisionPadding = 14;
+  const handwritingViewportMinWidth = 2560;
+  const handwritingViewportMinHeight = 1440;
   const introEndDelay = 1800;
   let introTimerIds = [];
   let activeTypingCharEl = null;
@@ -86,6 +90,21 @@ window.addEventListener("DOMContentLoaded", () => {
       window.clearTimeout(handwritingLoopTimerId);
       handwritingLoopTimerId = null;
     }
+  };
+
+  const isDesktopViewport = () => {
+    const pixelRatio = window.devicePixelRatio || 1;
+    const physicalWidth = window.innerWidth * pixelRatio;
+    const physicalHeight = window.innerHeight * pixelRatio;
+
+    return (
+      physicalWidth >= handwritingViewportMinWidth &&
+      physicalHeight >= handwritingViewportMinHeight
+    );
+  };
+
+  const clearHandwritingWords = () => {
+    if (handwritingLayerEl) handwritingLayerEl.innerHTML = "";
   };
 
   const getRandomInRange = (min, max) => {
@@ -223,10 +242,43 @@ window.addEventListener("DOMContentLoaded", () => {
     };
   };
 
+  const expandRect = (rect, padding) => ({
+    left: rect.left - padding,
+    right: rect.right + padding,
+    top: rect.top - padding,
+    bottom: rect.bottom + padding
+  });
+
+  const rectsOverlap = (a, b) =>
+    a.left < b.right &&
+    a.right > b.left &&
+    a.top < b.bottom &&
+    a.bottom > b.top;
+
+  const canPlaceHandwritingWord = (wordEl, position) => {
+    if (!handwritingLayerEl) return false;
+
+    wordEl.style.left = `${position.x}px`;
+    wordEl.style.top = `${position.y}px`;
+
+    const wordRect = wordEl.getBoundingClientRect();
+    if (!wordRect.width || !wordRect.height) return false;
+
+    const candidateRect = expandRect(wordRect, handwritingCollisionPadding);
+    const activeWords = Array.from(handwritingLayerEl.querySelectorAll(".hero-handwriting-word"));
+
+    return activeWords.every((activeWordEl) => {
+      if (activeWordEl === wordEl) return true;
+      const activeRect = activeWordEl.getBoundingClientRect();
+      if (!activeRect.width || !activeRect.height) return true;
+      return !rectsOverlap(candidateRect, activeRect);
+    });
+  };
+
   const showNextHandwritingWord = () => {
     if (!homeHeroEl || !handwritingLayerEl || !homeTopWordmarkEl || homeHeroEl.classList.contains("is-typing")) return;
+    if (!isDesktopViewport()) return;
     if (!handwritingWords.length) return;
-    const position = getHandwritingPositionOutsideHero() || getGuaranteedVisibleFallbackPosition();
 
     const word = handwritingWords[handwritingWordIndex % handwritingWords.length];
     handwritingWordIndex += 1;
@@ -236,11 +288,31 @@ window.addEventListener("DOMContentLoaded", () => {
     const wordEl = document.createElement("span");
     wordEl.className = "hero-handwriting-word";
     wordEl.textContent = word;
-    wordEl.style.left = `${position.x}px`;
-    wordEl.style.top = `${position.y}px`;
     wordEl.style.setProperty("--word-tilt", `${tilt}deg`);
     wordEl.style.animationDuration = `${wordDuration}ms`;
+    wordEl.style.visibility = "hidden";
     handwritingLayerEl.appendChild(wordEl);
+
+    let placed = false;
+    for (let attempt = 0; attempt < handwritingPlacementAttempts; attempt += 1) {
+      const candidatePosition = getHandwritingPositionOutsideHero() || getGuaranteedVisibleFallbackPosition();
+      if (canPlaceHandwritingWord(wordEl, candidatePosition)) {
+        placed = true;
+        break;
+      }
+    }
+
+    if (!placed) {
+      const fallbackPosition = getGuaranteedVisibleFallbackPosition();
+      placed = canPlaceHandwritingWord(wordEl, fallbackPosition);
+    }
+
+    if (!placed) {
+      wordEl.remove();
+      return;
+    }
+
+    wordEl.style.visibility = "";
 
     window.requestAnimationFrame(() => {
       wordEl.classList.add("is-showing");
@@ -253,6 +325,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const scheduleHandwritingWords = () => {
     if (!homeHeroEl || !handwritingLayerEl || !homeTopWordmarkEl || document.hidden) return;
+    if (!isDesktopViewport()) {
+      clearHandwritingTimers();
+      clearHandwritingWords();
+      return;
+    }
     if (homeHeroEl.classList.contains("is-entering") || homeHeroEl.classList.contains("is-typing")) {
       const retryDelay = getRandomInRange(handwritingSpawnDelayMin, handwritingSpawnDelayMax);
       handwritingLoopTimerId = window.setTimeout(scheduleHandwritingWords, retryDelay);
@@ -272,6 +349,10 @@ window.addEventListener("DOMContentLoaded", () => {
   const startHandwritingLoop = () => {
     clearHandwritingTimers();
     if (!homeHeroEl || !handwritingLayerEl || !homeTopWordmarkEl) return;
+    if (!isDesktopViewport()) {
+      clearHandwritingWords();
+      return;
+    }
 
     const startDelay = introEndDelay + 180;
     handwritingStartTimerId = window.setTimeout(() => {
@@ -297,7 +378,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (!homeHeroEl) return;
     clearHomeIntroTimers();
     clearHandwritingTimers();
-    if (handwritingLayerEl) handwritingLayerEl.innerHTML = "";
+    clearHandwritingWords();
     homeHeroEl.classList.remove("is-entering", "is-typing");
     void homeHeroEl.offsetWidth;
     homeHeroEl.classList.add("is-entering", "is-typing");
@@ -354,6 +435,15 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   window.addEventListener("resize", () => {
+    if (!homeHeroEl || !handwritingLayerEl) return;
+
+    if (!isDesktopViewport()) {
+      clearHandwritingTimers();
+      clearHandwritingWords();
+    } else if (!document.hidden && !homeHeroEl.classList.contains("is-entering") && !handwritingStartTimerId && !handwritingLoopTimerId) {
+      startHandwritingLoop();
+    }
+
     if (!homeHeroEl || !homeHeroEl.classList.contains("is-typing") || !activeTypingCharEl) return;
     if (typingResizeQueued) return;
     typingResizeQueued = true;
@@ -370,6 +460,10 @@ window.addEventListener("DOMContentLoaded", () => {
     if (!homeHeroEl) return;
     if (document.hidden) {
       clearHandwritingTimers();
+      return;
+    }
+    if (!isDesktopViewport()) {
+      clearHandwritingWords();
       return;
     }
     if (!homeHeroEl.classList.contains("is-entering")) {
