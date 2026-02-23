@@ -209,6 +209,33 @@
   animation: germanPulse 4s ease-in-out infinite;
 }
 
+.hero-handwriting-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 80;
+}
+
+.hero-handwriting-word {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  color: #000000;
+  font-size: clamp(18px, 2.1vw, 34px);
+  font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, -50%) rotate(var(--word-tilt, -8deg));
+  transform-origin: left center;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.hero-handwriting-word.is-showing {
+  animation: pencilWriteFade 2.6s ease forwards;
+}
+
 
 @keyframes charFloat {
 
@@ -270,12 +297,44 @@
   }
 }
 
+@keyframes pencilWriteFade {
+  0% {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+
+  8% {
+    opacity: 1;
+  }
+
+  52% {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+
+  74% {
+    opacity: 0.95;
+    clip-path: inset(0 0 0 0);
+  }
+
+  100% {
+    opacity: 0;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
 
   .hero-char,
   .hero-script,
-  .hero-german {
+  .hero-german,
+  .hero-handwriting-word.is-showing {
     animation: none;
+  }
+
+  .hero-handwriting-word.is-showing {
+    opacity: 0.92;
+    clip-path: inset(0 0 0 0);
   }
 
   .hero-char:hover,

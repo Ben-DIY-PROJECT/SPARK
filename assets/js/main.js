@@ -1,6 +1,9 @@
 window.addEventListener("DOMContentLoaded", () => {
   const currentPage =
     location.pathname.split("/").pop() || "index.html";
+  const bgOverlayGradient =
+    "radial-gradient(60% 80% at 65% 40%, rgba(201, 164, 92, 0.18), rgba(201, 164, 92, 0.00) 60%)," +
+    "linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.25))";
 
   document.querySelectorAll(".nav a").forEach(link => {
     const href = link.getAttribute("href");
@@ -15,10 +18,7 @@ window.addEventListener("DOMContentLoaded", () => {
       const normalized = bg.replace(/\\/g, "/");
       const urlValue = `url("${normalized}")`;
       el.style.setProperty("--bg", urlValue);
-      el.style.backgroundImage =
-        `radial-gradient(60% 80% at 65% 40%, rgba(201, 164, 92, 0.18), rgba(201, 164, 92, 0.00) 60%),` +
-        `linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.25)),` +
-        `${urlValue}`;
+      el.style.backgroundImage = `${bgOverlayGradient},${urlValue}`;
     }
   });
 
@@ -27,18 +27,256 @@ window.addEventListener("DOMContentLoaded", () => {
   const homeTopWordmarkEl = homeHeroEl
     ? homeHeroEl.querySelector(".hero-wordmark-line.top")
     : null;
+  const handwritingLayerEl = document.querySelector(".hero-handwriting-layer");
   const homeCharEls = homeHeroEl
     ? Array.from(homeHeroEl.querySelectorAll(".hero-char"))
     : [];
   const charRevealDelays = [60, 180, 300, 420, 540];
   const charRevealDuration = 320;
+  const handwritingWords = [
+    "Guten Tag!",
+    "Moin!",
+    "Hallo!",
+    "Servus!",
+    "Grüß dich!",
+    "Grüß Gott!",
+    "Wie geht’s?",
+    "Alles gut?",
+    "Was geht?",
+    "Freut mich!",
+    "Willkommen!",
+    "Guten Morgen!",
+    "Guten Abend!",
+    "Gute Nacht!",
+    "Danke!",
+    "Danke schön!",
+    "Bitte!",
+    "Kein Problem!",
+    "Alles klar!",
+    "Genau!",
+    "Super!",
+    "Tschüss!"
+  ];
+  const handwritingConcurrentMin = 5;
+  const handwritingConcurrentMax = 6;
+  const handwritingSpawnDelayMin = 1100;
+  const handwritingSpawnDelayMax = 2200;
+  const handwritingWordDurationMin = 2600;
+  const handwritingWordDurationMax = 4600;
+  const introEndDelay = 1800;
   let introTimerIds = [];
   let activeTypingCharEl = null;
   let partnerIntroTimerId = null;
+  let handwritingStartTimerId = null;
+  let handwritingLoopTimerId = null;
+  let handwritingWordIndex = 0;
+  let typingResizeQueued = false;
 
   const clearHomeIntroTimers = () => {
     introTimerIds.forEach((timerId) => window.clearTimeout(timerId));
     introTimerIds = [];
+  };
+
+  const clearHandwritingTimers = () => {
+    if (handwritingStartTimerId) {
+      window.clearTimeout(handwritingStartTimerId);
+      handwritingStartTimerId = null;
+    }
+    if (handwritingLoopTimerId) {
+      window.clearTimeout(handwritingLoopTimerId);
+      handwritingLoopTimerId = null;
+    }
+  };
+
+  const getRandomInRange = (min, max) => {
+    if (max <= min) return min;
+    return min + Math.random() * (max - min);
+  };
+
+  const getRandomIntInRange = (min, max) => {
+    if (max <= min) return min;
+    return Math.floor(getRandomInRange(min, max + 1));
+  };
+
+  const getHandwritingPositionOutsideHero = () => {
+    if (!homeHeroEl || !handwritingLayerEl) return null;
+
+    const heroRect = homeHeroEl.getBoundingClientRect();
+    if (!heroRect.width || !heroRect.height) return null;
+
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const viewportPadding = 110;
+    const safeGap = 26;
+    const sideDepth = 140;
+
+    const zones = [
+      {
+        xMin: Math.max(viewportPadding, heroRect.left),
+        xMax: Math.min(viewportWidth - viewportPadding, heroRect.right),
+        yMin: viewportPadding,
+        yMax: Math.min(viewportHeight - viewportPadding, heroRect.top - safeGap)
+      },
+      {
+        xMin: Math.max(viewportPadding, heroRect.left),
+        xMax: Math.min(viewportWidth - viewportPadding, heroRect.right),
+        yMin: Math.max(viewportPadding, heroRect.bottom + safeGap),
+        yMax: Math.min(viewportHeight - viewportPadding, heroRect.bottom + sideDepth)
+      },
+      {
+        xMin: Math.max(viewportPadding, heroRect.left - sideDepth),
+        xMax: Math.min(viewportWidth - viewportPadding, heroRect.left - safeGap),
+        yMin: Math.max(viewportPadding, heroRect.top),
+        yMax: Math.min(viewportHeight - viewportPadding, heroRect.bottom)
+      },
+      {
+        xMin: Math.max(viewportPadding, heroRect.right + safeGap),
+        xMax: Math.min(viewportWidth - viewportPadding, heroRect.right + sideDepth),
+        yMin: Math.max(viewportPadding, heroRect.top),
+        yMax: Math.min(viewportHeight - viewportPadding, heroRect.bottom)
+      }
+    ].filter((zone) => zone.xMax - zone.xMin > 24 && zone.yMax - zone.yMin > 20);
+
+    if (zones.length) {
+      const zone = zones[Math.floor(Math.random() * zones.length)];
+
+      return {
+        x: getRandomInRange(zone.xMin, zone.xMax),
+        y: getRandomInRange(zone.yMin, zone.yMax)
+      };
+    }
+
+    if (!homeTopWordmarkEl) return null;
+
+    const anchorRect = homeTopWordmarkEl.getBoundingClientRect();
+    if (!anchorRect.width || !anchorRect.height) return null;
+
+    const centerX = anchorRect.left + anchorRect.width / 2;
+    const centerY = anchorRect.top + anchorRect.height / 2;
+    const deadZoneHalfW = Math.max(160, anchorRect.width * 0.68);
+    const deadZoneHalfH = Math.max(70, anchorRect.height * 1.45);
+
+    const fallbackZones = [
+      {
+        xMin: viewportPadding,
+        xMax: viewportWidth - viewportPadding,
+        yMin: viewportPadding,
+        yMax: Math.max(viewportPadding, centerY - deadZoneHalfH - safeGap)
+      },
+      {
+        xMin: viewportPadding,
+        xMax: viewportWidth - viewportPadding,
+        yMin: Math.min(viewportHeight - viewportPadding, centerY + deadZoneHalfH + safeGap),
+        yMax: viewportHeight - viewportPadding
+      },
+      {
+        xMin: viewportPadding,
+        xMax: Math.max(viewportPadding, centerX - deadZoneHalfW - safeGap),
+        yMin: Math.max(viewportPadding, centerY - deadZoneHalfH),
+        yMax: Math.min(viewportHeight - viewportPadding, centerY + deadZoneHalfH)
+      },
+      {
+        xMin: Math.min(viewportWidth - viewportPadding, centerX + deadZoneHalfW + safeGap),
+        xMax: viewportWidth - viewportPadding,
+        yMin: Math.max(viewportPadding, centerY - deadZoneHalfH),
+        yMax: Math.min(viewportHeight - viewportPadding, centerY + deadZoneHalfH)
+      }
+    ].filter((zone) => zone.xMax - zone.xMin > 24 && zone.yMax - zone.yMin > 20);
+
+    if (!fallbackZones.length) return null;
+    const fallbackZone = fallbackZones[Math.floor(Math.random() * fallbackZones.length)];
+
+    return {
+      x: getRandomInRange(fallbackZone.xMin, fallbackZone.xMax),
+      y: getRandomInRange(fallbackZone.yMin, fallbackZone.yMax)
+    };
+  };
+
+  const getGuaranteedVisibleFallbackPosition = () => {
+    if (!homeHeroEl) return { x: Math.max(120, window.innerWidth * 0.22), y: Math.max(120, window.innerHeight * 0.24) };
+
+    const heroRect = homeHeroEl.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const padding = 120;
+
+    const candidates = [
+      { x: heroRect.left + heroRect.width * 0.5, y: heroRect.top - 34 },
+      { x: heroRect.left + heroRect.width * 0.5, y: heroRect.bottom + 34 },
+      { x: heroRect.left - 42, y: heroRect.top + heroRect.height * 0.45 },
+      { x: heroRect.right + 42, y: heroRect.top + heroRect.height * 0.45 }
+    ];
+
+    const visibleCandidate = candidates.find((point) =>
+      point.x >= padding &&
+      point.x <= viewportWidth - padding &&
+      point.y >= padding &&
+      point.y <= viewportHeight - padding
+    );
+
+    if (visibleCandidate) return visibleCandidate;
+
+    const first = candidates[0];
+    return {
+      x: Math.min(viewportWidth - padding, Math.max(padding, first.x)),
+      y: Math.min(viewportHeight - padding, Math.max(padding, first.y))
+    };
+  };
+
+  const showNextHandwritingWord = () => {
+    if (!homeHeroEl || !handwritingLayerEl || !homeTopWordmarkEl || homeHeroEl.classList.contains("is-typing")) return;
+    if (!handwritingWords.length) return;
+    const position = getHandwritingPositionOutsideHero() || getGuaranteedVisibleFallbackPosition();
+
+    const word = handwritingWords[handwritingWordIndex % handwritingWords.length];
+    handwritingWordIndex += 1;
+    const tilt = -12 + Math.random() * 24;
+    const wordDuration = getRandomInRange(handwritingWordDurationMin, handwritingWordDurationMax);
+
+    const wordEl = document.createElement("span");
+    wordEl.className = "hero-handwriting-word";
+    wordEl.textContent = word;
+    wordEl.style.left = `${position.x}px`;
+    wordEl.style.top = `${position.y}px`;
+    wordEl.style.setProperty("--word-tilt", `${tilt}deg`);
+    wordEl.style.animationDuration = `${wordDuration}ms`;
+    handwritingLayerEl.appendChild(wordEl);
+
+    window.requestAnimationFrame(() => {
+      wordEl.classList.add("is-showing");
+    });
+
+    window.setTimeout(() => {
+      wordEl.remove();
+    }, wordDuration + 140);
+  };
+
+  const scheduleHandwritingWords = () => {
+    if (!homeHeroEl || !handwritingLayerEl || !homeTopWordmarkEl || document.hidden) return;
+    if (homeHeroEl.classList.contains("is-entering") || homeHeroEl.classList.contains("is-typing")) {
+      const retryDelay = getRandomInRange(handwritingSpawnDelayMin, handwritingSpawnDelayMax);
+      handwritingLoopTimerId = window.setTimeout(scheduleHandwritingWords, retryDelay);
+      return;
+    }
+
+    const targetConcurrentCount = getRandomIntInRange(handwritingConcurrentMin, handwritingConcurrentMax);
+    const activeCount = handwritingLayerEl.querySelectorAll(".hero-handwriting-word").length;
+    if (activeCount < targetConcurrentCount) {
+      showNextHandwritingWord();
+    }
+
+    const nextDelay = getRandomInRange(handwritingSpawnDelayMin, handwritingSpawnDelayMax);
+    handwritingLoopTimerId = window.setTimeout(scheduleHandwritingWords, nextDelay);
+  };
+
+  const startHandwritingLoop = () => {
+    clearHandwritingTimers();
+    if (!homeHeroEl || !handwritingLayerEl || !homeTopWordmarkEl) return;
+
+    const startDelay = introEndDelay + 180;
+    handwritingStartTimerId = window.setTimeout(() => {
+      scheduleHandwritingWords();
+    }, startDelay);
   };
 
   const updateTypingCursor = (charEl) => {
@@ -58,6 +296,8 @@ window.addEventListener("DOMContentLoaded", () => {
   const playHomeHeroIntro = () => {
     if (!homeHeroEl) return;
     clearHomeIntroTimers();
+    clearHandwritingTimers();
+    if (handwritingLayerEl) handwritingLayerEl.innerHTML = "";
     homeHeroEl.classList.remove("is-entering", "is-typing");
     void homeHeroEl.offsetWidth;
     homeHeroEl.classList.add("is-entering", "is-typing");
@@ -70,13 +310,14 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
     const typingEndDelay = (charRevealDelays[charRevealDelays.length - 1] || 0) + charRevealDuration + 60;
-    const introEndDelay = 1800;
     introTimerIds.push(window.setTimeout(() => {
       homeHeroEl.classList.remove("is-typing");
     }, typingEndDelay));
     introTimerIds.push(window.setTimeout(() => {
       homeHeroEl.classList.remove("is-entering");
     }, introEndDelay));
+
+    startHandwritingLoop();
   };
 
   const clearPartnerIntroTimer = () => {
@@ -114,7 +355,26 @@ window.addEventListener("DOMContentLoaded", () => {
 
   window.addEventListener("resize", () => {
     if (!homeHeroEl || !homeHeroEl.classList.contains("is-typing") || !activeTypingCharEl) return;
-    updateTypingCursor(activeTypingCharEl);
+    if (typingResizeQueued) return;
+    typingResizeQueued = true;
+
+    window.requestAnimationFrame(() => {
+      typingResizeQueued = false;
+      if (homeHeroEl.classList.contains("is-typing") && activeTypingCharEl) {
+        updateTypingCursor(activeTypingCharEl);
+      }
+    });
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (!homeHeroEl) return;
+    if (document.hidden) {
+      clearHandwritingTimers();
+      return;
+    }
+    if (!homeHeroEl.classList.contains("is-entering")) {
+      startHandwritingLoop();
+    }
   });
 
   const listItems = document.querySelectorAll(".news-item");
@@ -127,6 +387,21 @@ window.addEventListener("DOMContentLoaded", () => {
   const toggleBtnEl = document.querySelector(".news-list-toggle");
 
   if (listItems.length && imageEl && titleEl) {
+    let activeNewsItem = null;
+
+    const setMultilineText = (el, rawText) => {
+      if (!el) return;
+      const normalizedText = (rawText || "").replace(/\\n/g, "\n");
+      const lines = normalizedText.split("\n");
+      el.textContent = "";
+
+      lines.forEach((line, idx) => {
+        if (idx > 0) {
+          el.appendChild(document.createElement("br"));
+        }
+        el.appendChild(document.createTextNode(line));
+      });
+    };
 
     const showEvent = (item) => {
       const title = item.dataset.title;
@@ -135,16 +410,16 @@ window.addEventListener("DOMContentLoaded", () => {
       const image = item.dataset.image;
       const content = item.dataset.content;
 
-      listItems.forEach(li => li.classList.remove("active"));
+      if (activeNewsItem && activeNewsItem !== item) {
+        activeNewsItem.classList.remove("active");
+      }
       item.classList.add("active");
+      activeNewsItem = item;
 
       titleEl.textContent = title || "";
       if (dateEl) dateEl.textContent = date ? `Time: ${date}` : "";
       if (addrEl) addrEl.textContent = address ? `Location: ${address}` : "";
-      if (bodyEl) {
-        const normalizedContent = (content || "").replace(/\\n/g, "\n");
-        bodyEl.innerHTML = normalizedContent.replace(/\n/g, "<br>");
-      }
+      setMultilineText(bodyEl, content);
       if (image) imageEl.setAttribute("src", image);
     };
 
@@ -180,8 +455,7 @@ window.addEventListener("DOMContentLoaded", () => {
           expanded = !expanded;
 
           if (!expanded) {
-            const activeItem = document.querySelector(".news-item.active");
-            if (activeItem && activeItem.hidden) {
+            if (activeNewsItem && activeNewsItem.hidden) {
               showEvent(listItems[0]);
             }
           }
