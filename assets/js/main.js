@@ -23,6 +23,7 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 
   const homeHeroEl = document.querySelector(".home-hero");
+  const partnerPageEl = document.querySelector(".page.page-partner");
   const homeTopWordmarkEl = homeHeroEl
     ? homeHeroEl.querySelector(".hero-wordmark-line.top")
     : null;
@@ -33,6 +34,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const charRevealDuration = 320;
   let introTimerIds = [];
   let activeTypingCharEl = null;
+  let partnerIntroTimerId = null;
 
   const clearHomeIntroTimers = () => {
     introTimerIds.forEach((timerId) => window.clearTimeout(timerId));
@@ -77,15 +79,36 @@ window.addEventListener("DOMContentLoaded", () => {
     }, introEndDelay));
   };
 
+  const clearPartnerIntroTimer = () => {
+    if (partnerIntroTimerId) {
+      window.clearTimeout(partnerIntroTimerId);
+      partnerIntroTimerId = null;
+    }
+  };
+
+  const playPartnerIntro = () => {
+    if (!partnerPageEl) return;
+    clearPartnerIntroTimer();
+    partnerPageEl.classList.remove("is-entering");
+    void partnerPageEl.offsetWidth;
+    partnerPageEl.classList.add("is-entering");
+
+    partnerIntroTimerId = window.setTimeout(() => {
+      partnerPageEl.classList.remove("is-entering");
+    }, 1400);
+  };
+
   window.requestAnimationFrame(() => {
     window.requestAnimationFrame(() => {
       playHomeHeroIntro();
+      playPartnerIntro();
     });
   });
 
   window.addEventListener("pageshow", (event) => {
     if (event.persisted) {
       playHomeHeroIntro();
+      playPartnerIntro();
     }
   });
 
