@@ -91,7 +91,7 @@
 }
 
 .hero-char {
-  font-size: clamp(84px, 17vw, 240px);
+  font-size: clamp(100px, 19vw, 290px);
   font-weight: 800;
   display: inline-block;
   position: relative;
