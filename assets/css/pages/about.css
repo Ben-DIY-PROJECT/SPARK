@@ -100,12 +100,14 @@
     transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
 }
 
-.about-comment-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--accent2);
-    background: linear-gradient(180deg,
-            rgba(255, 255, 255, 0.96),
-            rgba(255, 255, 255, 0.84));
+@media (hover: hover) and (pointer: fine) {
+    .about-comment-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--accent2);
+        background: linear-gradient(180deg,
+                rgba(255, 255, 255, 0.96),
+                rgba(255, 255, 255, 0.84));
+    }
 }
 
 .about-comment-card.is-animating {
