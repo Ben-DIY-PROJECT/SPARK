@@ -213,29 +213,6 @@
     padding: 56px 0 18px;
   }
 
-  .banner {
-    min-height: 320px;
-  }
-
-  .banner-inner {
-    padding: 52px 0;
-  }
-
-  .banner-copy {
-    max-width: 100%;
-    padding: 0 12px;
-  }
-
-  .banner-copy.right {
-    text-align: center;
-  }
-
-  .banner-overlay {
-    background: linear-gradient(180deg,
-        rgba(0, 0, 0, 0.28) 0%,
-        rgba(0, 0, 0, 0.00) 70%);
-  }
-
   .works-grid {
     grid-template-columns: 1fr;
   }
@@ -246,16 +223,4 @@
 }
 
 @media (max-width: 420px) {
-  .banner {
-    min-height: 300px;
-  }
-
-  .banner-inner {
-    padding: 44px 0;
-  }
-
-  .banner-desc {
-    font-size: 14px;
-    line-height: 1.75;
-  }
 }

@@ -1,6 +1,7 @@
 @import "base.css";
 @import "layout.css";
 @import "components.css";
+@import "pages/about.css";
 @import "pages/index.css";
 @import "pages/news.css";
 @import "pages/contact.css";

@@ -1,9 +1,6 @@
 window.addEventListener("DOMContentLoaded", () => {
   const currentPage =
     location.pathname.split("/").pop() || "index.html";
-  const bgOverlayGradient =
-    "radial-gradient(60% 80% at 65% 40%, rgba(201, 164, 92, 0.18), rgba(201, 164, 92, 0.00) 60%)," +
-    "linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.25))";
 
   document.querySelectorAll(".nav a").forEach(link => {
     const href = link.getAttribute("href");
@@ -14,17 +11,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
   const navEl = document.querySelector(".nav");
 
-  document.querySelectorAll("[data-bg]").forEach(el => {
-    const bg = el.dataset.bg;
-    if (bg) {
-      const normalized = bg.replace(/\\/g, "/");
-      const urlValue = `url("${normalized}")`;
-      el.style.setProperty("--bg", urlValue);
-      el.style.backgroundImage = `${bgOverlayGradient},${urlValue}`;
-    }
-  });
-
   const homeHeroEl = document.querySelector(".home-hero");
+  const aboutPageEl = document.querySelector(".page.page-about");
   const partnerPageEl = document.querySelector(".page.page-partner");
   const homeTopWordmarkEl = homeHeroEl
     ? homeHeroEl.querySelector(".hero-wordmark-line.top")
@@ -72,6 +60,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const introEndDelay = 1800;
   let introTimerIds = [];
   let activeTypingCharEl = null;
+  let aboutIntroTimerId = null;
   let partnerIntroTimerId = null;
   let handwritingStartTimerId = null;
   let handwritingLoopTimerId = null;
@@ -555,6 +544,25 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  const clearAboutIntroTimer = () => {
+    if (aboutIntroTimerId) {
+      window.clearTimeout(aboutIntroTimerId);
+      aboutIntroTimerId = null;
+    }
+  };
+
+  const playAboutIntro = () => {
+    if (!aboutPageEl) return;
+    clearAboutIntroTimer();
+    aboutPageEl.classList.remove("is-entering");
+    void aboutPageEl.offsetWidth;
+    aboutPageEl.classList.add("is-entering");
+
+    aboutIntroTimerId = window.setTimeout(() => {
+      aboutPageEl.classList.remove("is-entering");
+    }, 1200);
+  };
+
   const playPartnerIntro = () => {
     if (!partnerPageEl) return;
     clearPartnerIntroTimer();
@@ -572,6 +580,7 @@ window.addEventListener("DOMContentLoaded", () => {
       updateNavOverflowState();
       applyHandwritingGlobalScale();
       playHomeHeroIntro();
+      playAboutIntro();
       playPartnerIntro();
     });
   });
@@ -585,6 +594,7 @@ window.addEventListener("DOMContentLoaded", () => {
     applyHandwritingGlobalScale();
     if (event.persisted) {
       playHomeHeroIntro();
+      playAboutIntro();
       playPartnerIntro();
     }
   });
@@ -637,6 +647,123 @@ window.addEventListener("DOMContentLoaded", () => {
       startHandwritingLoop();
     }
   });
+
+  const aboutTestimonialsGridEl = document.querySelector(".about-testimonials-grid");
+  const aboutToggleBtnEl = document.querySelector(".about-testimonials-more");
+
+  if (aboutTestimonialsGridEl && aboutToggleBtnEl) {
+    const testimonialCardEls = Array.from(
+      aboutTestimonialsGridEl.querySelectorAll(".about-comment-card")
+    );
+    const maxItems = Number.parseInt(aboutTestimonialsGridEl.dataset.maxItems || "", 10);
+
+    if (Number.isFinite(maxItems) && maxItems > 0 && testimonialCardEls.length > maxItems) {
+      let expanded = false;
+      let isAnimating = false;
+      const hiddenCardEls = testimonialCardEls.slice(maxItems);
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const setAboutExpandedState = (nextExpanded) => {
+        expanded = nextExpanded;
+        const hiddenCount = Math.max(0, testimonialCardEls.length - maxItems);
+        aboutToggleBtnEl.hidden = false;
+        aboutToggleBtnEl.textContent = expanded ? "Show less" : `Show more (+${hiddenCount})`;
+        aboutToggleBtnEl.setAttribute("aria-expanded", String(expanded));
+        aboutTestimonialsGridEl.classList.toggle("is-collapsed", !expanded);
+      };
+
+      const updateAboutCollapsedState = () => {
+        testimonialCardEls.forEach((item, idx) => {
+          item.hidden = !expanded && idx >= maxItems;
+        });
+        setAboutExpandedState(expanded);
+      };
+
+      const animateItems = (items, keyframesFactory) => {
+        if (!items.length || prefersReducedMotion) {
+          return Promise.resolve();
+        }
+
+        const animations = items
+          .map((item, idx) => {
+            if (typeof item.animate !== "function") return null;
+            item.classList.add("is-animating");
+            return item.animate(keyframesFactory(idx), {
+              duration: 280,
+              delay: idx * 60,
+              easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+              fill: "both"
+            });
+          })
+          .filter(Boolean);
+
+        if (!animations.length) {
+          return Promise.resolve();
+        }
+
+        return Promise.allSettled(
+          animations.map(animation => new Promise((resolve) => {
+            animation.addEventListener("finish", resolve, { once: true });
+            animation.addEventListener("cancel", resolve, { once: true });
+          }))
+        ).then(() => {
+          items.forEach(item => item.classList.remove("is-animating"));
+        });
+      };
+
+      const expandAboutTestimonials = async () => {
+        setAboutExpandedState(true);
+        hiddenCardEls.forEach((item) => {
+          item.hidden = false;
+        });
+
+        await animateItems(hiddenCardEls, () => ([
+          { opacity: 0, transform: "translateY(16px)" },
+          { opacity: 1, transform: "translateY(0)" }
+        ]));
+      };
+
+      const collapseAboutTestimonials = async () => {
+        await animateItems(hiddenCardEls, () => ([
+          { opacity: 1, transform: "translateY(0)" },
+          { opacity: 0, transform: "translateY(12px)" }
+        ]));
+
+        hiddenCardEls.forEach((item) => {
+          item.hidden = true;
+        });
+        setAboutExpandedState(false);
+
+        const firstVisibleCard = testimonialCardEls.find((_, idx) => idx < maxItems);
+        if (firstVisibleCard) {
+          firstVisibleCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      };
+
+      aboutToggleBtnEl.addEventListener("click", async () => {
+        if (isAnimating) return;
+
+        isAnimating = true;
+        aboutToggleBtnEl.disabled = true;
+
+        try {
+          if (expanded) {
+            await collapseAboutTestimonials();
+          } else {
+            await expandAboutTestimonials();
+          }
+        } finally {
+          isAnimating = false;
+          aboutToggleBtnEl.disabled = false;
+        }
+      });
+
+      updateAboutCollapsedState();
+    } else {
+      aboutToggleBtnEl.hidden = true;
+      aboutTestimonialsGridEl.classList.remove("is-collapsed");
+    }
+  }
 
   const listItems = document.querySelectorAll(".news-item");
   const imageEl = document.querySelector(".news-image");
