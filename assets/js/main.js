@@ -14,6 +14,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const homeHeroEl = document.querySelector(".home-hero");
   const aboutPageEl = document.querySelector(".page.page-about");
   const partnerPageEl = document.querySelector(".page.page-partner");
+  const contactPageEl = document.querySelector(".page.page-contact");
   const homeTopWordmarkEl = homeHeroEl
     ? homeHeroEl.querySelector(".hero-wordmark-line.top")
     : null;
@@ -62,6 +63,7 @@ window.addEventListener("DOMContentLoaded", () => {
   let activeTypingCharEl = null;
   let aboutIntroTimerId = null;
   let partnerIntroTimerId = null;
+  let contactIntroTimerId = null;
   let handwritingStartTimerId = null;
   let handwritingLoopTimerId = null;
   let handwritingWordIndex = 0;
@@ -551,6 +553,13 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  const clearContactIntroTimer = () => {
+    if (contactIntroTimerId) {
+      window.clearTimeout(contactIntroTimerId);
+      contactIntroTimerId = null;
+    }
+  };
+
   const playAboutIntro = () => {
     if (!aboutPageEl) return;
     clearAboutIntroTimer();
@@ -575,6 +584,18 @@ window.addEventListener("DOMContentLoaded", () => {
     }, 1400);
   };
 
+  const playContactIntro = () => {
+    if (!contactPageEl) return;
+    clearContactIntroTimer();
+    contactPageEl.classList.remove("is-entering");
+    void contactPageEl.offsetWidth;
+    contactPageEl.classList.add("is-entering");
+
+    contactIntroTimerId = window.setTimeout(() => {
+      contactPageEl.classList.remove("is-entering");
+    }, 1700);
+  };
+
   window.requestAnimationFrame(() => {
     window.requestAnimationFrame(() => {
       updateNavOverflowState();
@@ -582,6 +603,7 @@ window.addEventListener("DOMContentLoaded", () => {
       playHomeHeroIntro();
       playAboutIntro();
       playPartnerIntro();
+      playContactIntro();
     });
   });
 
@@ -596,6 +618,7 @@ window.addEventListener("DOMContentLoaded", () => {
       playHomeHeroIntro();
       playAboutIntro();
       playPartnerIntro();
+      playContactIntro();
     }
   });
 
