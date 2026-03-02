@@ -1,4 +1,4 @@
-body > main.main.col-sm-12 {
+body>main.main.col-sm-12 {
   position: relative;
   min-height: 1px;
   padding: 96px 15px 56px;
@@ -11,22 +11,22 @@ body > main.main.col-sm-12 {
   line-height: 1.75;
 }
 
-body > main.main.col-sm-12 p,
-body > main.main.col-sm-12 li {
+body>main.main.col-sm-12 p,
+body>main.main.col-sm-12 li {
   font-family: "Didact Gothic", sans-serif;
   font-size: 18px;
   font-weight: 400;
   color: #000;
 }
 
-body > main.main.col-sm-12 .page-header {
+body>main.main.col-sm-12 .page-header {
   text-align: left;
   padding: 0 0 10px;
   margin-bottom: 22px;
   border-bottom: 1px solid #b8c8df;
 }
 
-body > main.main.col-sm-12 .page-header h1 {
+body>main.main.col-sm-12 .page-header h1 {
   margin: 0;
   font-size: clamp(42px, 4.8vw, 52px);
   font-weight: 700;
@@ -35,76 +35,72 @@ body > main.main.col-sm-12 .page-header h1 {
   color: #13294b;
 }
 
-body > main.main.col-sm-12 h2,
-body > main.main.col-sm-12 h3 {
+body>main.main.col-sm-12 h2,
+body>main.main.col-sm-12 h3 {
   color: #2f6ea4;
   margin: 0 0 10px;
   font-weight: 600;
   line-height: 1.35;
 }
 
-body > main.main.col-sm-12 h2 {
+body>main.main.col-sm-12 h2 {
   font-size: 24px;
 }
 
-body > main.main.col-sm-12 h3 {
+body>main.main.col-sm-12 h3 {
   font-size: 24px;
 }
 
-body > main.main.col-sm-12 .profile-photo {
+body>main.main.col-sm-12 img.alignleft {
   float: left;
-  margin: 2px 20px 12px 0;
-}
-
-body > main.main.col-sm-12 .profile-photo img {
+  margin: 0 1em 1em 0;
   width: 200px;
   max-width: 100%;
   height: auto;
-  display: block;
 }
 
-body > main.main.col-sm-12 .profile-header .title {
+body>main.main.col-sm-12 .profile-summary {
   margin-top: 0;
   margin-bottom: 24px;
   color: #2f6ea4;
-  font-size: 24px;
+  font-size: 20px;
   line-height: 1.3;
 }
 
-body > main.main.col-sm-12 section {
+body>main.main.col-sm-12 section {
   margin-bottom: 16px;
 }
 
-body > main.main.col-sm-12 .intellectual-biography p {
+body>main.main.col-sm-12 .intellectual-biography p {
   margin: 0 0 8px;
 }
 
-body > main.main.col-sm-12 .recent-publications ul {
+body>main.main.col-sm-12 .recent-publications ul {
   margin: 0;
   padding-left: 36px;
 }
 
-body > main.main.col-sm-12 .recent-publications li {
+body>main.main.col-sm-12 .recent-publications li {
   margin-bottom: 14px;
 }
 
-body > main.main.col-sm-12 a {
+body>main.main.col-sm-12 a {
   color: #007fae;
 }
 
-body > main.main.col-sm-12 a:hover {
+body>main.main.col-sm-12 a:hover {
   color: #13294b;
 }
 
-body > main.main.col-sm-12::after {
+body>main.main.col-sm-12::after {
   content: "";
   display: table;
   clear: both;
 }
 
 .page.page-contact.is-entering .page-header,
-.page.page-contact.is-entering .profile-photo,
-.page.page-contact.is-entering .profile-header,
+.page.page-contact.is-entering .profile-image-heading,
+.page.page-contact.is-entering .profile-summary,
 .page.page-contact.is-entering .education,
 .page.page-contact.is-entering .intellectual-biography,
 .page.page-contact.is-entering .recent-publications {
@@ -116,8 +112,8 @@ body > main.main.col-sm-12::after {
   animation: contactFadeUp 560ms ease forwards;
 }
 
-.page.page-contact.is-entering .profile-photo,
-.page.page-contact.is-entering .profile-header,
+.page.page-contact.is-entering .profile-image-heading,
+.page.page-contact.is-entering .profile-summary,
 .page.page-contact.is-entering .education {
   animation: contactFadeUp 560ms ease 160ms forwards;
 }
@@ -143,9 +139,10 @@ body > main.main.col-sm-12::after {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .page.page-contact.is-entering .page-header,
-  .page.page-contact.is-entering .profile-photo,
-  .page.page-contact.is-entering .profile-header,
+  .page.page-contact.is-entering .profile-image-heading,
+  .page.page-contact.is-entering .profile-summary,
   .page.page-contact.is-entering .education,
   .page.page-contact.is-entering .intellectual-biography,
   .page.page-contact.is-entering .recent-publications {
@@ -156,50 +153,52 @@ body > main.main.col-sm-12::after {
 }
 
 @media (max-width: 980px) {
-  body > main.main.col-sm-12 {
+  body>main.main.col-sm-12 {
     padding-top: 126px;
   }
 
-  body > main.main.col-sm-12 h2,
-  body > main.main.col-sm-12 h3,
-  body > main.main.col-sm-12 .profile-header .title {
+  body>main.main.col-sm-12 h2,
+  body>main.main.col-sm-12 h3,
+  body>main.main.col-sm-12 .profile-header .title {
     font-size: 22px;
   }
 }
 
 @media (max-width: 720px) {
-  body > main.main.col-sm-12 {
+  body>main.main.col-sm-12 {
     font-size: 17px;
     line-height: 1.7;
     padding-top: 122px;
   }
 
-  body > main.main.col-sm-12 p,
-  body > main.main.col-sm-12 li {
+  body>main.main.col-sm-12 p,
+  body>main.main.col-sm-12 li {
     font-size: 17px;
   }
 
-  body > main.main.col-sm-12 .profile-photo {
-    float: left;
+  body>main.main.col-sm-12 img.alignleft {
     margin: 4px 14px 10px 0;
-  }
-
-  body > main.main.col-sm-12 .profile-photo img {
     width: 150px;
   }
 
-  body > main.main.col-sm-12 .intellectual-biography,
-  body > main.main.col-sm-12 .recent-publications {
-    clear: left;
-  }
-
-  body > main.main.col-sm-12 .page-header h1 {
+  body>main.main.col-sm-12 .page-header h1 {
     font-size: 36px;
   }
 
-  body > main.main.col-sm-12 h2,
-  body > main.main.col-sm-12 h3,
-  body > main.main.col-sm-12 .profile-header .title {
-    font-size: 20px;
+  body>main.main.col-sm-12 h2,
+  body>main.main.col-sm-12 h3,
+  body>main.main.col-sm-12 .profile-summary {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 399px) {
+  body>main.main.col-sm-12 img.alignleft {
+    float: none;
+    margin: 4px 0 12px;
+  }
+
+  body>main.main.col-sm-12 .profile-summary {
+    clear: both;
   }
 }
