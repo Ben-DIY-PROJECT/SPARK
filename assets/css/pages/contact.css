@@ -35,6 +35,40 @@ body>main.main.col-sm-12 .page-header h1 {
   color: #13294b;
 }
 
+body>main.main.col-sm-12 .page-header .contact-email {
+  margin: 14px 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #f3f7fc;
+  width: fit-content;
+  font-size: 16px;
+  line-height: 1.2;
+  color: #13294b;
+}
+
+body>main.main.col-sm-12 .page-header .contact-email span {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #2f6ea4;
+}
+
+body>main.main.col-sm-12 .page-header .contact-email a {
+  color: #13294b;
+  font-size: 18px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+body>main.main.col-sm-12 .page-header .contact-email a:hover {
+  color: #007fae;
+  text-decoration: underline;
+}
+
 body>main.main.col-sm-12 h2,
 body>main.main.col-sm-12 h3 {
   color: #2f6ea4;
@@ -183,6 +217,21 @@ body>main.main.col-sm-12::after {
 
   body>main.main.col-sm-12 .page-header h1 {
     font-size: 36px;
+  }
+
+  body>main.main.col-sm-12 .page-header .contact-email {
+    margin-top: 12px;
+    padding: 7px 12px;
+    gap: 8px;
+    font-size: 15px;
+  }
+
+  body>main.main.col-sm-12 .page-header .contact-email span {
+    font-size: 13px;
+  }
+
+  body>main.main.col-sm-12 .page-header .contact-email a {
+    font-size: 17px;
   }
 
   body>main.main.col-sm-12 h2,
