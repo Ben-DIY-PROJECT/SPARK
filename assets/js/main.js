@@ -15,6 +15,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const aboutPageEl = document.querySelector(".page.page-about");
   const partnerPageEl = document.querySelector(".page.page-partner");
   const contactPageEl = document.querySelector(".page.page-contact");
+  const newsPageEl = document.querySelector(".page.page-news");
   const homeTopWordmarkEl = homeHeroEl
     ? homeHeroEl.querySelector(".hero-wordmark-line.top")
     : null;
@@ -64,6 +65,7 @@ window.addEventListener("DOMContentLoaded", () => {
   let aboutIntroTimerId = null;
   let partnerIntroTimerId = null;
   let contactIntroTimerId = null;
+  let newsIntroTimerId = null;
   let handwritingStartTimerId = null;
   let handwritingLoopTimerId = null;
   let handwritingWordIndex = 0;
@@ -560,6 +562,13 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  const clearNewsIntroTimer = () => {
+    if (newsIntroTimerId) {
+      window.clearTimeout(newsIntroTimerId);
+      newsIntroTimerId = null;
+    }
+  };
+
   const playAboutIntro = () => {
     if (!aboutPageEl) return;
     clearAboutIntroTimer();
@@ -596,6 +605,18 @@ window.addEventListener("DOMContentLoaded", () => {
     }, 1700);
   };
 
+  const playNewsIntro = () => {
+    if (!newsPageEl) return;
+    clearNewsIntroTimer();
+    newsPageEl.classList.remove("is-entering");
+    void newsPageEl.offsetWidth;
+    newsPageEl.classList.add("is-entering");
+
+    newsIntroTimerId = window.setTimeout(() => {
+      newsPageEl.classList.remove("is-entering");
+    }, 1500);
+  };
+
   window.requestAnimationFrame(() => {
     window.requestAnimationFrame(() => {
       updateNavOverflowState();
@@ -604,6 +625,7 @@ window.addEventListener("DOMContentLoaded", () => {
       playAboutIntro();
       playPartnerIntro();
       playContactIntro();
+      playNewsIntro();
     });
   });
 
@@ -619,6 +641,7 @@ window.addEventListener("DOMContentLoaded", () => {
       playAboutIntro();
       playPartnerIntro();
       playContactIntro();
+      playNewsIntro();
     }
   });
 
@@ -794,11 +817,18 @@ window.addEventListener("DOMContentLoaded", () => {
   const dateEl = document.querySelector(".news-date");
   const addrEl = document.querySelector(".news-address");
   const bodyEl = document.querySelector(".news-body");
+  const detailPanelEl = document.querySelector(".news-detail");
   const newsListEl = document.querySelector(".news-list");
   const toggleBtnEl = document.querySelector(".news-list-toggle");
 
   if (listItems.length && imageEl && titleEl) {
     let activeNewsItem = null;
+    let detailRefreshTimerId = null;
+
+    listItems.forEach((item) => {
+      item.classList.remove("active");
+      item.removeAttribute("aria-current");
+    });
 
     const setMultilineText = (el, rawText) => {
       if (!el) return;
@@ -815,6 +845,8 @@ window.addEventListener("DOMContentLoaded", () => {
     };
 
     const showEvent = (item) => {
+      if (!item) return;
+
       const title = item.dataset.title;
       const date = item.dataset.date;
       const address = item.dataset.address;
@@ -823,8 +855,10 @@ window.addEventListener("DOMContentLoaded", () => {
 
       if (activeNewsItem && activeNewsItem !== item) {
         activeNewsItem.classList.remove("active");
+        activeNewsItem.removeAttribute("aria-current");
       }
       item.classList.add("active");
+      item.setAttribute("aria-current", "true");
       activeNewsItem = item;
 
       titleEl.textContent = title || "";
@@ -832,6 +866,19 @@ window.addEventListener("DOMContentLoaded", () => {
       if (addrEl) addrEl.textContent = address ? `Location: ${address}` : "";
       setMultilineText(bodyEl, content);
       if (image) imageEl.setAttribute("src", image);
+
+      if (detailPanelEl) {
+        detailPanelEl.classList.remove("is-refreshing");
+        void detailPanelEl.offsetWidth;
+        detailPanelEl.classList.add("is-refreshing");
+        if (detailRefreshTimerId) {
+          window.clearTimeout(detailRefreshTimerId);
+        }
+        detailRefreshTimerId = window.setTimeout(() => {
+          detailPanelEl.classList.remove("is-refreshing");
+          detailRefreshTimerId = null;
+        }, 560);
+      }
     };
 
     listItems.forEach(item => {
